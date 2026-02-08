@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/appicon.ico">
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Places - Interactive3D</title>
+<title>Interactive3D</title>
+<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/appicon.ico">
+
+<!-- Babylon.js -->
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
 <style>
   body {
@@ -13,7 +17,6 @@
     padding: 0;
   }
 
-  /* Classic 2004 Roblox blue header */
   #header {
     background: #0d4ea6;
     color: white;
@@ -23,8 +26,87 @@
     border-bottom: 3px solid #072f63;
   }
 
+  #subnav {
+    background: #e3e3e3;
+    padding: 10px;
+    border-bottom: 2px solid #b5b5b5;
+    display: flex;
+    gap: 10px;
+  }
+
+  .navBtn {
+    background: white;
+    border: 2px solid #b5b5b5;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .navBtn:hover {
+    background: #dcdcdc;
+  }
+
   #content {
     padding: 20px;
+  }
+
+  #homeSquare, #customizeAvatar {
+    width: 280px;
+    height: 320px;
+    background: #0d4ea6;
+    border: 3px solid #072f63;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #avatarCanvas, #customizeCanvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  /* Mini preview grid */
+  .charCell {
+    background: transparent;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .charCell:hover,
+  .charCell:active,
+  .charCell:focus {
+    background: transparent;
+    outline: none;
+  }
+
+  .miniPreview {
+    width: 120px;
+    aspect-ratio: 1 / 1;
+    background: #0d4ea6;
+    border: 2px solid #072f63;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .miniPreview canvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .charLabel {
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: bold;
   }
 
   .placeBox {
@@ -55,20 +137,159 @@
   .playBtn:hover {
     background: #0b3f85;
   }
+
+  .playerCount {
+    font-size: 13px;
+    color: #555;
+    margin-right: 15px;
+  }
 </style>
 </head>
 <body>
 
-<div id="header">Places</div>
+<div id="header">Interactive3D</div>
+
+<div id="subnav">
+  <button class="navBtn" onclick="showHome()">Home</button>
+  <button class="navBtn" onclick="showPlaces()">Places</button>
+  <button class="navBtn" onclick="showCustomize()">Customize</button>
+</div>
 
 <div id="content">
-  <h2>Available Places</h2>
-  <div id="list">Loading…</div>
+
+  <!-- HOME SECTION -->
+  <div id="homeSection">
+    <h2>Hello, User!</h2>
+
+    <div id="homeSquare">
+      <canvas id="avatarCanvas"></canvas>
+    </div>
+
+    <button class="navBtn" onclick="showCustomize()" style="
+      margin-top: 10px;
+      width: 280px;
+      font-size: 15px;
+      font-weight: bold;
+    ">
+      Customize Character
+    </button>
+  </div>
+
+  <!-- PLACES SECTION -->
+  <div id="placesSection" style="display:none;">
+    <h3>Available Places</h3>
+    <div id="list">Loading…</div>
+  </div>
+
+  <!-- CUSTOMIZE SECTION -->
+  <div id="customizeSection" style="display:none;">
+    <h3>Customize Character</h3>
+
+    <div style="display:flex; gap:20px; align-items:flex-start;">
+
+      <!-- Main preview -->
+      <div id="customizeAvatar">
+        <canvas id="customizeCanvas"></canvas>
+      </div>
+
+      <!-- ONE WHITE BOX AROUND ALL MINI PREVIEWS -->
+      <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-start;">
+        <h4>Select Character</h4>
+
+        <div style="
+          background:white;
+          border:2px solid #b5b5b5;
+          padding:12px;
+          display:inline-block;
+        ">
+
+          <div id="charGrid" style="
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            gap: 15px;
+            justify-content: flex-start;
+          ">
+
+            <div class="charCell" onclick="selectFigure(1)">
+              <div class="miniPreview"><canvas id="mini1"></canvas></div>
+              <div class="charLabel">Figure 1</div>
+            </div>
+
+            <div class="charCell" onclick="selectFigure(2)">
+              <div class="miniPreview"><canvas id="mini2"></canvas></div>
+              <div class="charLabel">Figure 2</div>
+            </div>
+
+            <div class="charCell" onclick="selectFigure(3)">
+              <div class="miniPreview"><canvas id="mini3"></canvas></div>
+              <div class="charLabel">Figure 3</div>
+            </div>
+
+            <div class="charCell" onclick="selectFigure(4)">
+              <div class="miniPreview"><canvas id="mini4"></canvas></div>
+              <div class="charLabel">Figure 4</div>
+            </div>
+
+            <div class="charCell" onclick="selectFigure(5)">
+              <div class="miniPreview"><canvas id="mini5"></canvas></div>
+              <div class="charLabel">Figure 5</div>
+            </div>
+
+            <div class="charCell" onclick="selectFigure(6)">
+              <div class="miniPreview"><canvas id="mini6"></canvas></div>
+              <div class="charLabel">Figure 6</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <script>
-// GitHub API endpoint for your repo root
+/* SECTION SWITCHING */
+function showHome() {
+  homeSection.style.display = "block";
+  placesSection.style.display = "none";
+  customizeSection.style.display = "none";
+}
+
+function showPlaces() {
+  homeSection.style.display = "none";
+  placesSection.style.display = "block";
+  customizeSection.style.display = "none";
+}
+
+function showCustomize() {
+  homeSection.style.display = "none";
+  placesSection.style.display = "none";
+  customizeSection.style.display = "block";
+}
+
+/* CHARACTER SYSTEM */
+let selectedFigure = 1;
+
+const figureColors = {
+  1: { head:[245,205,48], torso:[128,187,219], legs:[164,189,71] },
+  2: { head:[245,205,48], torso:[220,93,237], legs:[164,189,71] },
+  3: { head:[245,205,48], torso:[93,237,150], legs:[134,179,231] },
+  4: { head:[245,205,48], torso:[213,110,139], legs:[164,189,71] },
+  5: { head:[245,205,48], torso:[110,134,213], legs:[164,189,71] },
+  6: { head:[245,205,48], torso:[255,150,59], legs:[164,189,71] }
+};
+
+function selectFigure(num) {
+  selectedFigure = num;
+  initAvatarPreview();
+  initCustomizePreview();
+}
+
+/* PLACE LIST LOADING */
 const apiURL = "https://api.github.com/repos/yeahbuildsstuff/placeservice/contents/";
+function getPlayerCount() { return 0; }
 
 async function loadFiles() {
   const list = document.getElementById("list");
@@ -76,38 +297,231 @@ async function loadFiles() {
   try {
     const response = await fetch(apiURL);
     const files = await response.json();
+    list.innerHTML = "";
 
-    list.innerHTML = ""; // clear loading text
+    const gameSet = new Set();
 
+    // Collect base names from ALL .html files
     files.forEach(file => {
       if (file.name.endsWith(".html")) {
 
-        const nameWithoutExt = file.name.replace(".html", "");
+        let cleanName = file.name.replace(".html", "");
 
-        const div = document.createElement("div");
-        div.className = "placeBox";
+        // Remove (charX)
+        cleanName = cleanName.replace(/\(char\d+\)/, "");
 
-        div.innerHTML = `
-          <span class="placeName">${nameWithoutExt}</span>
-          <button class="playBtn" onclick="play('${file.name}')">Play</button>
-        `;
-
-        list.appendChild(div);
+        gameSet.add(cleanName);
       }
+    });
+
+    // Display each game once
+    gameSet.forEach(baseName => {
+      const players = getPlayerCount();
+
+      const div = document.createElement("div");
+      div.className = "placeBox";
+
+      div.innerHTML = `
+        <span class="placeName">${baseName}</span>
+        <div style="display:flex; align-items:center;">
+          <span class="playerCount">${players} players online</span>
+          <button class="playBtn" onclick="play('${baseName}')">Play</button>
+        </div>
+      `;
+
+      list.appendChild(div);
     });
 
   } catch (err) {
     list.innerHTML = "Error loading file list.";
-    console.error(err);
   }
 }
 
-function play(filename) {
-  // Redirect to GitHub Pages version
-  window.location.href = `https://yeahbuildsstuff.github.io/placeservice/${filename}`;
+/* Load correct character-specific file */
+function play(baseName) {
+  const charFile = `(char${selectedFigure})${baseName}.html`;
+  window.location.href = `https://yeahbuildsstuff.github.io/placeservice/${charFile}`;
 }
 
 loadFiles();
+
+/* SHARED AVATAR BUILDER */
+function buildAvatar(scene, model) {
+  const f = figureColors[selectedFigure];
+
+  const headColor = new BABYLON.Color3(f.head[0]/255, f.head[1]/255, f.head[2]/255);
+  const torsoColor = new BABYLON.Color3(f.torso[0]/255, f.torso[1]/255, f.torso[2]/255);
+  const legColor   = new BABYLON.Color3(f.legs[0]/255, f.legs[1]/255, f.legs[2]/255);
+
+  let id = 0;
+  function part(name, w, h, d, y, x, color) {
+    const p = BABYLON.MeshBuilder.CreateBox(name + "_" + (id++), { width:w, height:h, depth:d }, scene);
+    p.position.y = y;
+    p.position.x = x;
+
+    const mat = new BABYLON.StandardMaterial(name + "_mat", scene);
+    mat.diffuseColor = color;
+    mat.specularColor = new BABYLON.Color3(0,0,0);
+    p.material = mat;
+
+    p.parent = model;
+    return p;
+  }
+
+  part("torso", 2, 2, 1, 2, 0, torsoColor);
+  part("leftArm", 1, 2, 1, 2, -1.5, headColor);
+  part("rightArm", 1, 2, 1, 2, 1.5, headColor);
+  part("leftLeg", 1, 2, 1, 0, -0.5, legColor);
+  part("rightLeg", 1, 2, 1, 0, 0.5, legColor);
+
+  BABYLON.SceneLoader.ImportMesh(
+    "",
+    "https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/",
+    "head.obj",
+    scene,
+    function(meshes) {
+      const headInner = meshes[0];
+      headInner.scaling = new BABYLON.Vector3(1,1,1);
+      headInner.rotation = new BABYLON.Vector3(0, Math.PI, 0);
+      headInner.position = new BABYLON.Vector3(0, 3.5, 0);
+      headInner.parent = model;
+
+      const innerMat = new BABYLON.StandardMaterial("innerMat", scene);
+      innerMat.diffuseColor = headColor;
+      innerMat.specularColor = new BABYLON.Color3(0,0,0);
+      headInner.material = innerMat;
+
+      const headOuter = headInner.clone("headOuter");
+      headOuter.parent = model;
+      headOuter.scaling = new BABYLON.Vector3(1.002,1.002,1.002);
+
+      const faceMat = new BABYLON.StandardMaterial("faceMat", scene);
+      const faceTex = new BABYLON.Texture(
+        "https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/defaultface.png",
+        scene
+      );
+      faceTex.hasAlpha = true;
+      faceMat.diffuseTexture = faceTex;
+      faceMat.opacityTexture = faceTex;
+      faceMat.emissiveColor = new BABYLON.Color3(1,1,1);
+      faceMat.specularColor = new BABYLON.Color3(0,0,0);
+      faceMat.backFaceCulling = false;
+
+      headOuter.material = faceMat;
+    }
+  );
+}
+
+/* HOME PREVIEW */
+function initAvatarPreview() {
+  const canvas = document.getElementById("avatarCanvas");
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+  const camera = new BABYLON.ArcRotateCamera(
+    "cam",
+    Math.PI / 2 + Math.PI * 0.055,
+    Math.PI / 2.2,
+    6,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+  camera.attachControl(canvas, false);
+
+  new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
+  new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
+
+  const model = new BABYLON.TransformNode("model", scene);
+  model.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
+  model.position.y = -1.2;
+
+  buildAvatar(scene, model);
+
+  engine.runRenderLoop(() => scene.render());
+  window.addEventListener("resize", () => engine.resize());
+}
+
+/* CUSTOMIZE PREVIEW */
+function initCustomizePreview() {
+  const canvas = document.getElementById("customizeCanvas");
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+  const camera = new BABYLON.ArcRotateCamera(
+    "cam2",
+    Math.PI / 2 + Math.PI * 0.055,
+    Math.PI / 2.2,
+    6,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+  camera.attachControl(canvas, false);
+
+  new BABYLON.DirectionalLight("dirLight2", new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
+  new BABYLON.HemisphericLight("hemi2", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
+
+  const model = new BABYLON.TransformNode("model2", scene);
+  model.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
+  model.position.y = -1.2;
+
+  buildAvatar(scene, model);
+
+  engine.runRenderLoop(() => scene.render());
+  window.addEventListener("resize", () => engine.resize());
+}
+
+/* MINI PREVIEWS */
+function initMiniPreview(canvasId, figureNum) {
+  const canvas = document.getElementById(canvasId);
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+  const camera = new BABYLON.ArcRotateCamera(
+    "camMini" + figureNum,
+    Math.PI / 2 + Math.PI * 0.055,
+    Math.PI / 2.2,
+    6,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+  camera.attachControl(canvas, false);
+
+  new BABYLON.DirectionalLight("dirMini" + figureNum, new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
+  new BABYLON.HemisphericLight("hemiMini" + figureNum, new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
+
+  const model = new BABYLON.TransformNode("miniModel" + figureNum, scene);
+  model.scaling = new BABYLON.Vector3(0.45, 0.45, 0.45);
+  model.position.y = -1.2;
+
+  const old = selectedFigure;
+  selectedFigure = figureNum;
+
+  buildAvatar(scene, model);
+
+  selectedFigure = old;
+
+  engine.runRenderLoop(() => scene.render());
+}
+
+function initAllMiniPreviews() {
+  initMiniPreview("mini1", 1);
+  initMiniPreview("mini2", 2);
+  initMiniPreview("mini3", 3);
+  initMiniPreview("mini4", 4);
+  initMiniPreview("mini5", 5);
+  initMiniPreview("mini6", 6);
+}
+
+/* INITIALIZE EVERYTHING */
+initAvatarPreview();
+initCustomizePreview();
+initAllMiniPreviews();
 </script>
 
 </body>
