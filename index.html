@@ -11,50 +11,59 @@
 
 <style>
   body {
-    background: #d7d7d7;
+    background: white;
     font-family: Verdana, Arial, sans-serif;
     margin: 0;
     padding: 0;
   }
 
+  /* HEADER WITH LOGO */
   #header {
-    background: #0d4ea6;
-    color: white;
+    background: #5ab4ff;
     padding: 12px;
-    font-size: 22px;
-    font-weight: bold;
-    border-bottom: 3px solid #072f63;
+    border-bottom: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
+  #header img {
+    height: 48px;
+  }
+
+  /* SUBNAV */
   #subnav {
-    background: #e3e3e3;
+    background: white;
     padding: 10px;
-    border-bottom: 2px solid #b5b5b5;
+    border-bottom: 1px solid black;
     display: flex;
     gap: 10px;
   }
 
   .navBtn {
-    background: white;
-    border: 2px solid #b5b5b5;
+    background: #5ab4ff;
+    border: 1px solid black;
     padding: 6px 14px;
     cursor: pointer;
     font-size: 14px;
+    color: white;
+    font-weight: bold;
   }
 
   .navBtn:hover {
-    background: #dcdcdc;
+    background: #3a8cd6;
   }
 
   #content {
     padding: 20px;
   }
 
+  /* AVATAR PREVIEW BOXES */
   #homeSquare, #customizeAvatar {
     width: 280px;
     height: 320px;
-    background: #0d4ea6;
-    border: 3px solid #072f63;
+    background: #5ab4ff;
+    border: 1px solid black;
     margin-top: 20px;
     position: relative;
     overflow: hidden;
@@ -69,7 +78,7 @@
     pointer-events: none;
   }
 
-  /* Mini preview grid */
+  /* MINI PREVIEW GRID */
   .charCell {
     background: transparent;
     padding: 8px;
@@ -78,18 +87,11 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .charCell:hover,
-  .charCell:active,
-  .charCell:focus {
-    background: transparent;
-    outline: none;
-  }
-
   .miniPreview {
     width: 120px;
     aspect-ratio: 1 / 1;
-    background: #0d4ea6;
-    border: 2px solid #072f63;
+    background: #5ab4ff;
+    border: 1px solid black;
     position: relative;
     margin: 0 auto;
   }
@@ -109,9 +111,10 @@
     font-weight: bold;
   }
 
+  /* PLACE LIST */
   .placeBox {
     background: white;
-    border: 2px solid #b5b5b5;
+    border: 1px solid black;
     padding: 10px;
     margin-bottom: 10px;
     display: flex;
@@ -126,16 +129,16 @@
   }
 
   .playBtn {
-    background: #0d4ea6;
+    background: #5ab4ff;
     color: white;
-    border: 2px solid #072f63;
+    border: 1px solid black;
     padding: 5px 12px;
     font-size: 14px;
     cursor: pointer;
   }
 
   .playBtn:hover {
-    background: #0b3f85;
+    background: #3a8cd6;
   }
 
   .playerCount {
@@ -143,11 +146,72 @@
     color: #555;
     margin-right: 15px;
   }
+
+  /* DARK OVERLAY */
+  #loadingOverlay {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index:9999;
+  }
+
+  /* YELLOW BOX */
+  #loadingBox {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    background:#fff8c6;
+    border:1px solid black;
+    padding:20px 30px;
+    font-size:15px;
+    color:black;
+    min-width:260px;
+    text-align:center;
+  }
+
+  /* DOT LOADER */
+  .dots {
+    position:absolute;
+    bottom:8px;
+    right:12px;
+    display:flex;
+    gap:6px;
+  }
+
+  .dot {
+    width:8px;
+    height:8px;
+    background:black;
+    border-radius:50%;
+    opacity:0.3;
+    animation: dotFade 0.5s infinite ease-in-out;
+  }
+
+  .dot:nth-child(2) {
+    animation-delay: 0.166s;
+  }
+
+  .dot:nth-child(3) {
+    animation-delay: 0.333s;
+  }
+
+  @keyframes dotFade {
+    0% { opacity:0.3; }
+    50% { opacity:0.7; }
+    100% { opacity:0.3; }
+  }
 </style>
 </head>
 <body>
 
-<div id="header">Interactive3D</div>
+<div id="header">
+  <img src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/banner.png">
+</div>
 
 <div id="subnav">
   <button class="navBtn" onclick="showHome()">Home</button>
@@ -192,13 +256,13 @@
         <canvas id="customizeCanvas"></canvas>
       </div>
 
-      <!-- ONE WHITE BOX AROUND ALL MINI PREVIEWS -->
+      <!-- MINI PREVIEW GRID -->
       <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-start;">
         <h4>Select Character</h4>
 
         <div style="
           background:white;
-          border:2px solid #b5b5b5;
+          border:1px solid black;
           padding:12px;
           display:inline-block;
         ">
@@ -249,24 +313,39 @@
 
 </div>
 
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay">
+  <div id="loadingBox">
+    Requesting Place, Please Wait...
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* SECTION SWITCHING */
 function showHome() {
   homeSection.style.display = "block";
   placesSection.style.display = "none";
   customizeSection.style.display = "none";
+  initAllMiniPreviews();
 }
 
 function showPlaces() {
   homeSection.style.display = "none";
   placesSection.style.display = "block";
   customizeSection.style.display = "none";
+  initAllMiniPreviews();
 }
 
 function showCustomize() {
   homeSection.style.display = "none";
   placesSection.style.display = "none";
   customizeSection.style.display = "block";
+  initAllMiniPreviews();
 }
 
 /* CHARACTER SYSTEM */
@@ -275,7 +354,10 @@ let selectedFigure = 1;
 const figureColors = {
   1: { head:[245,205,48], torso:[128,187,219], legs:[164,189,71] },
   2: { head:[245,205,48], torso:[220,93,237], legs:[164,189,71] },
-  3: { head:[245,205,48], torso:[93,237,150], legs:[134,179,231] },
+
+  /* UPDATED FIGURE 3 */
+  3: { head:[245,205,48], torso:[165,165,165], legs:[164,189,71] },
+
   4: { head:[245,205,48], torso:[213,110,139], legs:[164,189,71] },
   5: { head:[245,205,48], torso:[110,134,213], legs:[164,189,71] },
   6: { head:[245,205,48], torso:[255,150,59], legs:[164,189,71] }
@@ -301,20 +383,14 @@ async function loadFiles() {
 
     const gameSet = new Set();
 
-    // Collect base names from ALL .html files
     files.forEach(file => {
       if (file.name.endsWith(".html")) {
-
         let cleanName = file.name.replace(".html", "");
-
-        // Remove (charX)
         cleanName = cleanName.replace(/\(char\d+\)/, "");
-
         gameSet.add(cleanName);
       }
     });
 
-    // Display each game once
     gameSet.forEach(baseName => {
       const players = getPlayerCount();
 
@@ -337,10 +413,14 @@ async function loadFiles() {
   }
 }
 
-/* Load correct character-specific file */
 function play(baseName) {
+  document.getElementById("loadingOverlay").style.display = "block";
+
   const charFile = `(char${selectedFigure})${baseName}.html`;
-  window.location.href = `https://yeahbuildsstuff.github.io/placeservice/${charFile}`;
+
+  setTimeout(() => {
+    window.location.href = `https://yeahbuildsstuff.github.io/placeservice/${charFile}`;
+  }, 2000);
 }
 
 loadFiles();
@@ -450,7 +530,6 @@ function initCustomizePreview() {
   const scene = new BABYLON.Scene(engine);
 
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-
   const camera = new BABYLON.ArcRotateCamera(
     "cam2",
     Math.PI / 2 + Math.PI * 0.055,
@@ -522,7 +601,15 @@ function initAllMiniPreviews() {
 initAvatarPreview();
 initCustomizePreview();
 initAllMiniPreviews();
+
+/* REFRESH ALL PREVIEWS ON WINDOW RESIZE */
+window.addEventListener("resize", () => {
+  initAvatarPreview();
+  initCustomizePreview();
+  initAllMiniPreviews();
+});
 </script>
 
 </body>
 </html>
+
