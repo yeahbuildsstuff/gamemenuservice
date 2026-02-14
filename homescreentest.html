@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive3D</title>
+  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/appicon.ico">
+
+  <!-- Babylon.js -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
+  <style>
+    body {
+      background: white;
+      font-family: Verdana, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-y: scroll;
+    }
+
+    #pageFrame {
+      width: 80vh;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: white;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+    }
+
+    #header {
+      background: #5ab4ff;
+      padding: 12px;
+      border-bottom: 1px solid black;
+      display: flex;
+      justify-content: center;
+    }
+
+    #header img { height: 48px; }
+
+    #subnav {
+      background: white;
+      padding: 10px;
+      border-bottom: 1px solid black;
+      display: flex;
+      gap: 10px;
+    }
+
+    .navBtn {
+      background: #5ab4ff;
+      border: 1px solid black;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .navBtn:hover { background: #3a8cd6; }
+
+    #content { padding: 20px; }
+
+    .box {
+      background: white;
+      border: 1px solid black;
+      padding: 10px;
+    }
+
+    .yellowBox {
+      background: #fff8c6;
+      border: 1px solid black;
+      padding: 10px;
+    }
+
+    .miniPreview {
+      width: 120px;
+      aspect-ratio: 1 / 1;
+      background: #5ab4ff;
+      border: 1px solid black;
+      position: relative;
+    }
+
+    .miniPreview canvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #customizeCanvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    .charCell { text-align: center; cursor: pointer; }
+    .charLabel { margin-top: 6px; font-size: 14px; font-weight: bold; }
+
+    .placeBox {
+      background: white;
+      border: 1px solid black;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .playBtn {
+      background: #5ab4ff;
+      color: white;
+      border: 1px solid black;
+      padding: 5px 12px;
+      cursor: pointer;
+    }
+
+    .playBtn:hover { background: #3a8cd6; }
+  </style>
+</head>
+<body>
+
+<div id="pageFrame">
+
+  <div id="header">
+    <img src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/banner.png">
+  </div>
+
+  <div id="subnav">
+    <button class="navBtn" onclick="showHome()">Home</button>
+    <button class="navBtn" onclick="showPlaces()">Places</button>
+    <button class="navBtn" onclick="showCustomize()">Customize</button>
+  </div>
+
+  <div id="content">
+
+    <!-- HOME -->
+    <div id="homeSection">
+
+      <div style="display:flex; width:100%;">
+
+        <div class="yellowBox" style="flex:1; border-right:none;">
+          <h3 style="margin-top:0;">welcome to Interactive3D</h3>
+          <p>Click on a place to get started.</p>
+        </div>
+
+        <div class="yellowBox" style="width:250px;">
+          <label>Username:</label><br>
+          <input id="loginUser" type="text" style="width:95%;"><br><br>
+
+          <label>Password:</label><br>
+          <input id="loginPass" type="password" style="width:95%;"><br><br>
+
+          <button class="navBtn" style="width:100%;" onclick="doLogin()">Log In</button>
+          <button class="navBtn" style="width:100%; margin-top:5px;" onclick="doSignup()">Sign Up</button>
+
+          <p id="loggedInLabel" style="margin-top:10px; font-weight:bold;">logged in as: Guest</p>
+        </div>
+
+      </div>
+
+      <div style="display:flex; width:100%; margin-top:20px;">
+
+        <div class="box" style="flex:1; border-right:none;">
+          <h3 style="margin-top:0;">Cool Place</h3>
+
+          <div style="width:100%; aspect-ratio:4/3; border:1px solid black;">
+            <img id="coolPlaceImg"
+                 src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/defaultplace.png"
+                 style="width:100%; height:100%; object-fit:cover;">
+          </div>
+
+          <p id="coolPlaceName" style="font-weight:bold; margin-top:8px;">Loading...</p>
+        </div>
+
+        <div class="box" style="width:250px;">
+          <h3 style="margin-top:0;">newest players</h3>
+          <ul id="newestPlayers" style="padding-left:18px;">
+            <li>Loading...</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="box" style="margin-top:20px; width:100%;">
+        <h3 style="margin-top:0;">Recently Visited Places</h3>
+        <div id="recentPlaces" style="display:flex; gap:10px;"></div>
+        <a href="#" style="display:block; margin-top:10px;">Browse All Places</a>
+      </div>
+
+    </div>
+    <!-- END HOME -->
+
+    <!-- PLACES -->
+    <div id="placesSection" style="display:none;">
+      <h3>Available Places</h3>
+      <div id="list">Loading…</div>
+    </div>
+
+    <!-- CUSTOMIZE -->
+    <div id="customizeSection" style="display:none;">
+      <h3>Customize Character</h3>
+
+      <div style="display:flex; gap:20px; align-items:flex-start;">
+
+        <div id="customizeAvatar" style="width:280px; height:320px; background:#5ab4ff; border:1px solid black; position:relative;">
+          <canvas id="customizeCanvas"></canvas>
+        </div>
+
+        <div style="flex:1;">
+          <h4>Select Character</h4>
+
+          <div style="background:white; border:1px solid black; padding:12px; display:inline-block;">
+            <div id="charGrid" style="display:grid; grid-template-columns:repeat(3,120px); gap:15px;">
+
+              <div class="charCell" onclick="selectFigure(1)">
+                <div class="miniPreview"><canvas id="mini1"></canvas></div>
+                <div class="charLabel">Figure 1</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(2)">
+                <div class="miniPreview"><canvas id="mini2"></canvas></div>
+                <div class="charLabel">Figure 2</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(3)">
+                <div class="miniPreview"><canvas id="mini3"></canvas></div>
+                <div class="charLabel">Figure 3</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(4)">
+                <div class="miniPreview"><canvas id="mini4"></canvas></div>
+                <div class="charLabel">Figure 4</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(5)">
+                <div class="miniPreview"><canvas id="mini5"></canvas></div>
+                <div class="charLabel">Figure 5</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(6)">
+                <div class="miniPreview"><canvas id="mini6"></canvas></div>
+                <div class="charLabel">Figure 6</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- end content -->
+
+</div> <!-- end pageFrame -->
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:9999;
+">
+  <div style="
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    background:#fff8c6;
+    border:1px solid black;
+    padding:20px 30px;
+    font-size:15px;
+    color:black;
+    min-width:260px;
+    text-align:center;
+  ">
+    Requesting Place, Please Wait...
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getDatabase, ref, set, get, child 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAMV92OcCFQh-9FSVk_me11dVR-JFNvCQQ",
+    authDomain: "interactive3dservers.firebaseapp.com",
+    databaseURL: "https://interactive3dservers-default-rtdb.firebaseio.com",
+    projectId: "interactive3dservers",
+    storageBucket: "interactive3dservers.firebasestorage.app",
+    messagingSenderId: "822638519297",
+    appId: "1:822638519297:web:8deafc5a1b54ad600e4c00"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.db = db;
+  window.dbRef = ref;
+  window.dbChild = child;
+  window.dbGet = get;
+  window.dbSet = set;
+</script>
+
+<!-- Main Script -->
+<script>
+/* SECTION SWITCHING */
+function showHome() {
+  homeSection.style.display = "block";
+  placesSection.style.display = "none";
+  customizeSection.style.display = "none";
+  initAllMiniPreviews();
+}
+
+function showPlaces() {
+  homeSection.style.display = "none";
+  placesSection.style.display = "block";
+  customizeSection.style.display = "none";
+  initAllMiniPreviews();
+}
+
+function showCustomize() {
+  homeSection.style.display = "none";
+  placesSection.style.display = "none";
+  customizeSection.style.display = "block";
+  initAllMiniPreviews();
+}
+
+/* PASSWORD ENCODING */
+function asciiToAlpha(num) {
+  let result = "";
+  while (num > 0) {
+    num--;
+    const remainder = num % 26;
+    result = String.fromCharCode(97 + remainder) + result;
+    num = Math.floor(num / 26);
+  }
+  return result;
+}
+
+function encodePassword(str) {
+  let out = [];
+  for (let ch of str) {
+    const ascii = ch.charCodeAt(0);
+    const alpha = asciiToAlpha(ascii);
+    out.push(alpha);
+  }
+  return out.join("0");
+}
+
+/* SIGN UP (using login fields) */
+async function doSignup() {
+  const username = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+
+  if (!username || !pass) {
+    alert("Please enter a username and password.");
+    return;
+  }
+
+  const encoded = encodePassword(pass);
+
+  const userRef = dbRef(db, "users/" + username);
+  const snap = await dbGet(userRef);
+
+  if (snap.exists()) {
+    alert("Username already taken.");
+    return;
+  }
+
+  try {
+    await dbSet(userRef, {
+      password: encoded,
+      createdAt: Date.now()
+    });
+
+    localStorage.setItem("loggedInUser", username);
+    document.getElementById("loggedInLabel").innerText = "logged in as: " + username;
+
+    alert("Account created!");
+
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+/* LOGIN */
+async function doLogin() {
+  const username = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+
+  const encoded = encodePassword(pass);
+
+  const userRef = dbRef(db, "users/" + username);
+  const snap = await dbGet(userRef);
+
+  if (!snap.exists()) {
+    alert("Invalid username.");
+    return;
+  }
+
+  const data = snap.val();
+
+  if (data.password !== encoded) {
+    alert("Incorrect password.");
+    return;
+  }
+
+  localStorage.setItem("loggedInUser", username);
+  document.getElementById("loggedInLabel").innerText = "logged in as: " + username;
+
+  alert("Logged in!");
+}
+
+/* AUTO LOGIN */
+window.onload = () => {
+  const u = localStorage.getItem("loggedInUser");
+  if (u) {
+    document.getElementById("loggedInLabel").innerText = "logged in as: " + u;
+  }
+};
+
+/* PLACES */
+const apiURL = "https://api.github.com/repos/yeahbuildsstuff/placeservice/contents/";
+function getPlayerCount() { return 0; }
+
+async function loadFiles() {
+  const list = document.getElementById("list");
+
+  try {
+    const response = await fetch(apiURL);
+    const files = await response.json();
+    list.innerHTML = "";
+
+    const gameSet = new Set();
+
+    files.forEach(file => {
+      if (file.name.endsWith(".html")) {
+        let cleanName = file.name.replace(".html", "");
+        cleanName = cleanName.replace(/\(char\d+\)/, "");
+        gameSet.add(cleanName);
+      }
+    });
+
+    gameSet.forEach(baseName => {
+      const players = getPlayerCount();
+
+      const div = document.createElement("div");
+      div.className = "placeBox";
+
+      div.innerHTML = `
+        <span class="placeName">${baseName}</span>
+        <div style="display:flex; align-items:center;">
+          <span class="playerCount">${players} players online</span>
+          <button class="playBtn" onclick="play('${baseName}')">Play</button>
+        </div>
+      `;
+
+      list.appendChild(div);
+    });
+
+  } catch (err) {
+    list.innerHTML = "Error loading file list.";
+  }
+}
+
+function play(baseName) {
+  document.getElementById("loadingOverlay").style.display = "block";
+
+  const charFile = `(char${selectedFigure})${baseName}.html`;
+
+  setTimeout(() => {
+    window.location.href = `https://yeahbuildsstuff.github.io/placeservice/${charFile}`;
+  }, 2000);
+}
+
+loadFiles();
+
+/* AVATAR GLOBALS — REQUIRED */
+let selectedFigure = 1;
+
+const figureColors = {
+  1: { head:[245,205,48], torso:[128,187,219], legs:[164,189,71] },
+  2: { head:[245,205,48], torso:[220,93,237], legs:[164,189,71] },
+
+  /* UPDATED FIGURE 3 */
+  3: { head:[245,205,48], torso:[165,165,165], legs:[164,189,71] },
+
+  4: { head:[245,205,48], torso:[213,110,139], legs:[164,189,71] },
+  5: { head:[245,205,48], torso:[110,134,213], legs:[164,189,71] },
+  6: { head:[245,205,48], torso:[255,150,59], legs:[164,189,71] }
+};
+
+function selectFigure(num) {
+  selectedFigure = num;
+  initCustomizePreview();
+  initAllMiniPreviews();
+}
+
+/* AVATAR BUILDER */
+function buildAvatar(scene, model) {
+  const f = figureColors[selectedFigure];
+
+  const headColor = new BABYLON.Color3(f.head[0]/255, f.head[1]/255, f.head[2]/255);
+  const torsoColor = new BABYLON.Color3(f.torso[0]/255, f.torso[1]/255, f.torso[2]/255);
+  const legColor   = new BABYLON.Color3(f.legs[0]/255, f.legs[1]/255, f.legs[2]/255);
+
+  let id = 0;
+  function part(name, w, h, d, y, x, color) {
+    const p = BABYLON.MeshBuilder.CreateBox(name + "_" + (id++), { width:w, height:h, depth:d }, scene);
+    p.position.y = y;
+    p.position.x = x;
+
+    const mat = new BABYLON.StandardMaterial(name + "_mat", scene);
+    mat.diffuseColor = color;
+    mat.specularColor = new BABYLON.Color3(0,0,0);
+    p.material = mat;
+
+    p.parent = model;
+    return p;
+  }
+
+  part("torso", 2, 2, 1, 2, 0, torsoColor);
+  part("leftArm", 1, 2, 1, 2, -1.5, headColor);
+  part("rightArm", 1, 2, 1, 2, 1.5, headColor);
+  part("leftLeg", 1, 2, 1, 0, -0.5, legColor);
+  part("rightLeg", 1, 2, 1, 0, 0.5, legColor);
+
+  BABYLON.SceneLoader.ImportMesh(
+    "",
+    "https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/",
+    "head.obj",
+    scene,
+    function(meshes) {
+      const headInner = meshes[0];
+      headInner.scaling = new BABYLON.Vector3(1,1,1);
+      headInner.rotation = new BABYLON.Vector3(0, Math.PI, 0);
+      headInner.position = new BABYLON.Vector3(0, 3.5, 0);
+      headInner.parent = model;
+
+      const innerMat = new BABYLON.StandardMaterial("innerMat", scene);
+      innerMat.diffuseColor = headColor;
+      innerMat.specularColor = new BABYLON.Color3(0,0,0);
+      headInner.material = innerMat;
+
+      const headOuter = headInner.clone("headOuter");
+      headOuter.parent = model;
+      headOuter.scaling = new BABYLON.Vector3(1.002,1.002,1.002);
+
+      const faceMat = new BABYLON.StandardMaterial("faceMat", scene);
+      const faceTex = new BABYLON.Texture(
+        "https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/defaultface.png",
+        scene
+      );
+      faceTex.hasAlpha = true;
+      faceMat.diffuseTexture = faceTex;
+      faceMat.opacityTexture = faceTex;
+      faceMat.emissiveColor = new BABYLON.Color3(1,1,1);
+      faceMat.specularColor = new BABYLON.Color3(0,0,0);
+      faceMat.backFaceCulling = false;
+
+      headOuter.material = faceMat;
+    }
+  );
+}
+
+/* CUSTOMIZE PREVIEW */
+function initCustomizePreview() {
+  const canvas = document.getElementById("customizeCanvas");
+  if (!canvas) return;
+
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+  const camera = new BABYLON.ArcRotateCamera(
+    "cam2",
+    Math.PI / 2 + Math.PI * 0.055,
+    Math.PI / 2.2,
+    6,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+  camera.attachControl(canvas, false);
+
+  new BABYLON.DirectionalLight("dirLight2", new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
+  new BABYLON.HemisphericLight("hemi2", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
+
+  const model = new BABYLON.TransformNode("model2", scene);
+  model.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
+  model.position.y = -1.2;
+
+  buildAvatar(scene, model);
+
+  engine.runRenderLoop(() => scene.render());
+  window.addEventListener("resize", () => engine.resize());
+}
+
+/* MINI PREVIEWS */
+function initMiniPreview(canvasId, figureNum) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+  const camera = new BABYLON.ArcRotateCamera(
+    "camMini" + figureNum,
+    Math.PI / 2 + Math.PI * 0.055,
+    Math.PI / 2.2,
+    6,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+  camera.attachControl(canvas, false);
+
+  new BABYLON.DirectionalLight(
+    "dirMini" + figureNum,
+    new BABYLON.Vector3(-1, -1, -1),
+    scene
+  ).intensity = 0.55;
+
+  new BABYLON.HemisphericLight(
+    "hemiMini" + figureNum,
+    new BABYLON.Vector3(0, 1, 0),
+    scene
+  ).intensity = 0.9;
+
+  const model = new BABYLON.TransformNode("miniModel" + figureNum, scene);
+  model.scaling = new BABYLON.Vector3(0.45, 0.45, 0.45);
+  model.position.y = -1.2;
+
+  const old = selectedFigure;
+  selectedFigure = figureNum;
+
+  buildAvatar(scene, model);
+
+  selectedFigure = old;
+
+  engine.runRenderLoop(() => scene.render());
+}
+
+function initAllMiniPreviews() {
+  initMiniPreview("mini1", 1);
+  initMiniPreview("mini2", 2);
+  initMiniPreview("mini3", 3);
+  initMiniPreview("mini4", 4);
+  initMiniPreview("mini5", 5);
+  initMiniPreview("mini6", 6);
+}
+
+/* REFRESH PREVIEWS ON RESIZE */
+window.addEventListener("resize", () => {
+  initCustomizePreview();
+  initAllMiniPreviews();
+});
+</script>
+
+
+</body>
+</html>
