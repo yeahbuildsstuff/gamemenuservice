@@ -1,166 +1,270 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Interactive3D</title>
-<link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/appicon.ico">
+  <meta charset="UTF-8">
+  <title>Interactive3D</title>
+  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/appicon.ico">
 
-<!-- Babylon.js -->
-<script src="https://cdn.babylonjs.com/babylon.js"></script>
-<script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <!-- Babylon.js -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
-<style>
-  body {
-    background: white;
-    font-family: Verdana, Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
+  <style>
+    body {
+      background: white;
+      font-family: Verdana, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-y: scroll;
+    }
 
-  /* HEADER WITH LOGO */
-  #header {
-    background: #5ab4ff;
-    padding: 12px;
-    border-bottom: 1px solid black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    #pageFrame {
+      width: 80vh;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: white;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+    }
 
-  #header img {
-    height: 48px;
-  }
+    #header {
+      background: #5ab4ff;
+      padding: 12px;
+      border-bottom: 1px solid black;
+      display: flex;
+      justify-content: center;
+    }
 
-  /* SUBNAV */
-  #subnav {
-    background: white;
-    padding: 10px;
-    border-bottom: 1px solid black;
-    display: flex;
-    gap: 10px;
-  }
+    #header img { height: 48px; }
 
-  .navBtn {
-    background: #5ab4ff;
-    border: 1px solid black;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-size: 14px;
-    color: white;
-    font-weight: bold;
-  }
+    #subnav {
+      background: white;
+      padding: 10px;
+      border-bottom: 1px solid black;
+      display: flex;
+      gap: 10px;
+    }
 
-  .navBtn:hover {
-    background: #3a8cd6;
-  }
+    .navBtn {
+      background: #5ab4ff;
+      border: 1px solid black;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      color: white;
+      font-weight: bold;
+    }
 
-  #content {
-    padding: 20px;
-  }
+    .navBtn:hover { background: #3a8cd6; }
 
-  /* AVATAR PREVIEW BOXES */
-  #homeSquare, #customizeAvatar {
-    width: 280px;
-    height: 320px;
-    background: #5ab4ff;
-    border: 1px solid black;
-    margin-top: 20px;
-    position: relative;
-    overflow: hidden;
-  }
+    #content { padding: 20px; }
 
-  #avatarCanvas, #customizeCanvas {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-  }
+    .box {
+      background: white;
+      border: 1px solid black;
+      padding: 10px;
+    }
 
-  /* MINI PREVIEW GRID */
-  .charCell {
-    background: transparent;
-    padding: 8px;
-    text-align: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
+    .yellowBox {
+      background: #fff8c6;
+      border: 1px solid black;
+      padding: 10px;
+    }
 
-  .miniPreview {
-    width: 120px;
-    aspect-ratio: 1 / 1;
-    background: #5ab4ff;
-    border: 1px solid black;
-    position: relative;
-    margin: 0 auto;
-  }
+    .miniPreview {
+      width: 120px;
+      aspect-ratio: 1 / 1;
+      background: #5ab4ff;
+      border: 1px solid black;
+      position: relative;
+    }
 
-  .miniPreview canvas {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-  }
+    .miniPreview canvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
 
-  .charLabel {
-    margin-top: 6px;
-    font-size: 14px;
-    font-weight: bold;
-  }
+    #customizeCanvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
 
-  /* PLACE LIST */
-  .placeBox {
-    background: white;
-    border: 1px solid black;
-    padding: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    .charCell { text-align: center; cursor: pointer; }
+    .charLabel { margin-top: 6px; font-size: 14px; font-weight: bold; }
 
-  .placeName {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-  }
+    .placeBox {
+      background: white;
+      border: 1px solid black;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  .playBtn {
-    background: #5ab4ff;
-    color: white;
-    border: 1px solid black;
-    padding: 5px 12px;
-    font-size: 14px;
-    cursor: pointer;
-  }
+    .playBtn {
+      background: #5ab4ff;
+      color: white;
+      border: 1px solid black;
+      padding: 5px 12px;
+      cursor: pointer;
+    }
 
-  .playBtn:hover {
-    background: #3a8cd6;
-  }
+    .playBtn:hover { background: #3a8cd6; }
+  </style>
+</head>
+<body>
 
-  .playerCount {
-    font-size: 13px;
-    color: #555;
-    margin-right: 15px;
-  }
+<div id="pageFrame">
 
-  /* DARK OVERLAY */
-  #loadingOverlay {
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.6);
-    z-index:9999;
-  }
+  <div id="header">
+    <img src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/banner.png">
+  </div>
 
-  /* YELLOW BOX */
-  #loadingBox {
+  <div id="subnav">
+    <button class="navBtn" onclick="showHome()">Home</button>
+    <button class="navBtn" onclick="showPlaces()">Places</button>
+    <button class="navBtn" onclick="showCustomize()">Customize</button>
+  </div>
+
+  <div id="content">
+
+    <!-- HOME -->
+    <div id="homeSection">
+
+      <div style="display:flex; width:100%;">
+
+        <div class="yellowBox" style="flex:1; border-right:none;">
+          <h3 style="margin-top:0;">welcome to Interactive3D</h3>
+          <p>Click on a place to get started.</p>
+        </div>
+
+        <div class="yellowBox" style="width:250px;">
+          <label>Username:</label><br>
+          <input id="loginUser" type="text" style="width:95%;"><br><br>
+
+          <label>Password:</label><br>
+          <input id="loginPass" type="password" style="width:95%;"><br><br>
+
+          <button class="navBtn" style="width:100%;" onclick="doLogin()">Log In</button>
+          <button class="navBtn" style="width:100%; margin-top:5px;" onclick="doSignup()">Sign Up</button>
+
+          <p id="loggedInLabel" style="margin-top:10px; font-weight:bold;">logged in as: Guest</p>
+        </div>
+
+      </div>
+
+      <div style="display:flex; width:100%; margin-top:20px;">
+
+        <div class="box" style="flex:1; border-right:none;">
+          <h3 style="margin-top:0;">Cool Place</h3>
+
+          <div style="width:100%; aspect-ratio:4/3; border:1px solid black;">
+            <img id="coolPlaceImg"
+                 src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/defaultplace.png"
+                 style="width:100%; height:100%; object-fit:cover;">
+          </div>
+
+          <p id="coolPlaceName" style="font-weight:bold; margin-top:8px;">Loading...</p>
+        </div>
+
+        <div class="box" style="width:250px;">
+          <h3 style="margin-top:0;">newest players</h3>
+          <ul id="newestPlayers" style="padding-left:18px;">
+            <li>Loading...</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="box" style="margin-top:20px; width:100%;">
+        <h3 style="margin-top:0;">Recently Visited Places</h3>
+        <div id="recentPlaces" style="display:flex; gap:10px;"></div>
+        <a href="#" style="display:block; margin-top:10px;">Browse All Places</a>
+      </div>
+
+    </div>
+    <!-- END HOME -->
+
+    <!-- PLACES -->
+    <div id="placesSection" style="display:none;">
+      <h3>Available Places</h3>
+      <div id="list">Loading…</div>
+    </div>
+
+    <!-- CUSTOMIZE -->
+    <div id="customizeSection" style="display:none;">
+      <h3>Customize Character</h3>
+
+      <div style="display:flex; gap:20px; align-items:flex-start;">
+
+        <div id="customizeAvatar" style="width:280px; height:320px; background:#5ab4ff; border:1px solid black; position:relative;">
+          <canvas id="customizeCanvas"></canvas>
+        </div>
+
+        <div style="flex:1;">
+          <h4>Select Character</h4>
+
+          <div style="background:white; border:1px solid black; padding:12px; display:inline-block;">
+            <div id="charGrid" style="display:grid; grid-template-columns:repeat(3,120px); gap:15px;">
+
+              <div class="charCell" onclick="selectFigure(1)">
+                <div class="miniPreview"><canvas id="mini1"></canvas></div>
+                <div class="charLabel">Figure 1</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(2)">
+                <div class="miniPreview"><canvas id="mini2"></canvas></div>
+                <div class="charLabel">Figure 2</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(3)">
+                <div class="miniPreview"><canvas id="mini3"></canvas></div>
+                <div class="charLabel">Figure 3</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(4)">
+                <div class="miniPreview"><canvas id="mini4"></canvas></div>
+                <div class="charLabel">Figure 4</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(5)">
+                <div class="miniPreview"><canvas id="mini5"></canvas></div>
+                <div class="charLabel">Figure 5</div>
+              </div>
+
+              <div class="charCell" onclick="selectFigure(6)">
+                <div class="miniPreview"><canvas id="mini6"></canvas></div>
+                <div class="charLabel">Figure 6</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- end content -->
+
+</div> <!-- end pageFrame -->
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:9999;
+">
+  <div style="
     position:absolute;
     top:50%;
     left:50%;
@@ -172,159 +276,39 @@
     color:black;
     min-width:260px;
     text-align:center;
-  }
-
-  /* DOT LOADER */
-  .dots {
-    position:absolute;
-    bottom:8px;
-    right:12px;
-    display:flex;
-    gap:6px;
-  }
-
-  .dot {
-    width:8px;
-    height:8px;
-    background:black;
-    border-radius:50%;
-    opacity:0.3;
-    animation: dotFade 0.5s infinite ease-in-out;
-  }
-
-  .dot:nth-child(2) {
-    animation-delay: 0.166s;
-  }
-
-  .dot:nth-child(3) {
-    animation-delay: 0.333s;
-  }
-
-  @keyframes dotFade {
-    0% { opacity:0.3; }
-    50% { opacity:0.7; }
-    100% { opacity:0.3; }
-  }
-</style>
-</head>
-<body>
-
-<div id="header">
-  <img src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/banner.png">
-</div>
-
-<div id="subnav">
-  <button class="navBtn" onclick="showHome()">Home</button>
-  <button class="navBtn" onclick="showPlaces()">Places</button>
-  <button class="navBtn" onclick="showCustomize()">Customize</button>
-</div>
-
-<div id="content">
-
-  <!-- HOME SECTION -->
-  <div id="homeSection">
-    <h2>Hello, User!</h2>
-
-    <div id="homeSquare">
-      <canvas id="avatarCanvas"></canvas>
-    </div>
-
-    <button class="navBtn" onclick="showCustomize()" style="
-      margin-top: 10px;
-      width: 280px;
-      font-size: 15px;
-      font-weight: bold;
-    ">
-      Customize Character
-    </button>
-  </div>
-
-  <!-- PLACES SECTION -->
-  <div id="placesSection" style="display:none;">
-    <h3>Available Places</h3>
-    <div id="list">Loading…</div>
-  </div>
-
-  <!-- CUSTOMIZE SECTION -->
-  <div id="customizeSection" style="display:none;">
-    <h3>Customize Character</h3>
-
-    <div style="display:flex; gap:20px; align-items:flex-start;">
-
-      <!-- Main preview -->
-      <div id="customizeAvatar">
-        <canvas id="customizeCanvas"></canvas>
-      </div>
-
-      <!-- MINI PREVIEW GRID -->
-      <div style="flex:1; display:flex; flex-direction:column; justify-content:flex-start;">
-        <h4>Select Character</h4>
-
-        <div style="
-          background:white;
-          border:1px solid black;
-          padding:12px;
-          display:inline-block;
-        ">
-
-          <div id="charGrid" style="
-            display: grid;
-            grid-template-columns: repeat(3, 120px);
-            gap: 15px;
-            justify-content: flex-start;
-          ">
-
-            <div class="charCell" onclick="selectFigure(1)">
-              <div class="miniPreview"><canvas id="mini1"></canvas></div>
-              <div class="charLabel">Figure 1</div>
-            </div>
-
-            <div class="charCell" onclick="selectFigure(2)">
-              <div class="miniPreview"><canvas id="mini2"></canvas></div>
-              <div class="charLabel">Figure 2</div>
-            </div>
-
-            <div class="charCell" onclick="selectFigure(3)">
-              <div class="miniPreview"><canvas id="mini3"></canvas></div>
-              <div class="charLabel">Figure 3</div>
-            </div>
-
-            <div class="charCell" onclick="selectFigure(4)">
-              <div class="miniPreview"><canvas id="mini4"></canvas></div>
-              <div class="charLabel">Figure 4</div>
-            </div>
-
-            <div class="charCell" onclick="selectFigure(5)">
-              <div class="miniPreview"><canvas id="mini5"></canvas></div>
-              <div class="charLabel">Figure 5</div>
-            </div>
-
-            <div class="charCell" onclick="selectFigure(6)">
-              <div class="miniPreview"><canvas id="mini6"></canvas></div>
-              <div class="charLabel">Figure 6</div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-</div>
-
-<!-- LOADING OVERLAY -->
-<div id="loadingOverlay">
-  <div id="loadingBox">
+  ">
     Requesting Place, Please Wait...
-    <div class="dots">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
   </div>
 </div>
 
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getDatabase, ref, set, get, child 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAMV92OcCFQh-9FSVk_me11dVR-JFNvCQQ",
+    authDomain: "interactive3dservers.firebaseapp.com",
+    databaseURL: "https://interactive3dservers-default-rtdb.firebaseio.com",
+    projectId: "interactive3dservers",
+    storageBucket: "interactive3dservers.firebasestorage.app",
+    messagingSenderId: "822638519297",
+    appId: "1:822638519297:web:8deafc5a1b54ad600e4c00"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.db = db;
+  window.dbRef = ref;
+  window.dbChild = child;
+  window.dbGet = get;
+  window.dbSet = set;
+</script>
+
+<!-- Main Script -->
 <script>
 /* SECTION SWITCHING */
 function showHome() {
@@ -348,28 +332,101 @@ function showCustomize() {
   initAllMiniPreviews();
 }
 
-/* CHARACTER SYSTEM */
-let selectedFigure = 1;
-
-const figureColors = {
-  1: { head:[245,205,48], torso:[128,187,219], legs:[164,189,71] },
-  2: { head:[245,205,48], torso:[220,93,237], legs:[164,189,71] },
-
-  /* UPDATED FIGURE 3 */
-  3: { head:[245,205,48], torso:[165,165,165], legs:[164,189,71] },
-
-  4: { head:[245,205,48], torso:[213,110,139], legs:[164,189,71] },
-  5: { head:[245,205,48], torso:[110,134,213], legs:[164,189,71] },
-  6: { head:[245,205,48], torso:[255,150,59], legs:[164,189,71] }
-};
-
-function selectFigure(num) {
-  selectedFigure = num;
-  initAvatarPreview();
-  initCustomizePreview();
+/* PASSWORD ENCODING */
+function asciiToAlpha(num) {
+  let result = "";
+  while (num > 0) {
+    num--;
+    const remainder = num % 26;
+    result = String.fromCharCode(97 + remainder) + result;
+    num = Math.floor(num / 26);
+  }
+  return result;
 }
 
-/* PLACE LIST LOADING */
+function encodePassword(str) {
+  let out = [];
+  for (let ch of str) {
+    const ascii = ch.charCodeAt(0);
+    const alpha = asciiToAlpha(ascii);
+    out.push(alpha);
+  }
+  return out.join("0");
+}
+
+/* SIGN UP (using login fields) */
+async function doSignup() {
+  const username = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+
+  if (!username || !pass) {
+    alert("Please enter a username and password.");
+    return;
+  }
+
+  const encoded = encodePassword(pass);
+
+  const userRef = dbRef(db, "users/" + username);
+  const snap = await dbGet(userRef);
+
+  if (snap.exists()) {
+    alert("Username already taken.");
+    return;
+  }
+
+  try {
+    await dbSet(userRef, {
+      password: encoded,
+      createdAt: Date.now()
+    });
+
+    localStorage.setItem("loggedInUser", username);
+    document.getElementById("loggedInLabel").innerText = "logged in as: " + username;
+
+    alert("Account created!");
+
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+/* LOGIN */
+async function doLogin() {
+  const username = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+
+  const encoded = encodePassword(pass);
+
+  const userRef = dbRef(db, "users/" + username);
+  const snap = await dbGet(userRef);
+
+  if (!snap.exists()) {
+    alert("Invalid username.");
+    return;
+  }
+
+  const data = snap.val();
+
+  if (data.password !== encoded) {
+    alert("Incorrect password.");
+    return;
+  }
+
+  localStorage.setItem("loggedInUser", username);
+  document.getElementById("loggedInLabel").innerText = "logged in as: " + username;
+
+  alert("Logged in!");
+}
+
+/* AUTO LOGIN */
+window.onload = () => {
+  const u = localStorage.getItem("loggedInUser");
+  if (u) {
+    document.getElementById("loggedInLabel").innerText = "logged in as: " + u;
+  }
+};
+
+/* PLACES */
 const apiURL = "https://api.github.com/repos/yeahbuildsstuff/placeservice/contents/";
 function getPlayerCount() { return 0; }
 
@@ -425,7 +482,28 @@ function play(baseName) {
 
 loadFiles();
 
-/* SHARED AVATAR BUILDER */
+/* AVATAR GLOBALS — REQUIRED */
+let selectedFigure = 1;
+
+const figureColors = {
+  1: { head:[245,205,48], torso:[128,187,219], legs:[164,189,71] },
+  2: { head:[245,205,48], torso:[220,93,237], legs:[164,189,71] },
+
+  /* UPDATED FIGURE 3 */
+  3: { head:[245,205,48], torso:[165,165,165], legs:[164,189,71] },
+
+  4: { head:[245,205,48], torso:[213,110,139], legs:[164,189,71] },
+  5: { head:[245,205,48], torso:[110,134,213], legs:[164,189,71] },
+  6: { head:[245,205,48], torso:[255,150,59], legs:[164,189,71] }
+};
+
+function selectFigure(num) {
+  selectedFigure = num;
+  initCustomizePreview();
+  initAllMiniPreviews();
+}
+
+/* AVATAR BUILDER */
 function buildAvatar(scene, model) {
   const f = figureColors[selectedFigure];
 
@@ -492,44 +570,16 @@ function buildAvatar(scene, model) {
   );
 }
 
-/* HOME PREVIEW */
-function initAvatarPreview() {
-  const canvas = document.getElementById("avatarCanvas");
-  const engine = new BABYLON.Engine(canvas, true);
-  const scene = new BABYLON.Scene(engine);
-
-  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-
-  const camera = new BABYLON.ArcRotateCamera(
-    "cam",
-    Math.PI / 2 + Math.PI * 0.055,
-    Math.PI / 2.2,
-    6,
-    BABYLON.Vector3.Zero(),
-    scene
-  );
-  camera.attachControl(canvas, false);
-
-  new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
-  new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
-
-  const model = new BABYLON.TransformNode("model", scene);
-  model.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
-  model.position.y = -1.2;
-
-  buildAvatar(scene, model);
-
-  engine.runRenderLoop(() => scene.render());
-  window.addEventListener("resize", () => engine.resize());
-}
-
 /* CUSTOMIZE PREVIEW */
 function initCustomizePreview() {
   const canvas = document.getElementById("customizeCanvas");
+  if (!canvas) return;
+
   const engine = new BABYLON.Engine(canvas, true);
   const scene = new BABYLON.Scene(engine);
 
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
   const camera = new BABYLON.ArcRotateCamera(
     "cam2",
     Math.PI / 2 + Math.PI * 0.055,
@@ -556,6 +606,8 @@ function initCustomizePreview() {
 /* MINI PREVIEWS */
 function initMiniPreview(canvasId, figureNum) {
   const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
   const engine = new BABYLON.Engine(canvas, true);
   const scene = new BABYLON.Scene(engine);
 
@@ -571,8 +623,17 @@ function initMiniPreview(canvasId, figureNum) {
   );
   camera.attachControl(canvas, false);
 
-  new BABYLON.DirectionalLight("dirMini" + figureNum, new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
-  new BABYLON.HemisphericLight("hemiMini" + figureNum, new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
+  new BABYLON.DirectionalLight(
+    "dirMini" + figureNum,
+    new BABYLON.Vector3(-1, -1, -1),
+    scene
+  ).intensity = 0.55;
+
+  new BABYLON.HemisphericLight(
+    "hemiMini" + figureNum,
+    new BABYLON.Vector3(0, 1, 0),
+    scene
+  ).intensity = 0.9;
 
   const model = new BABYLON.TransformNode("miniModel" + figureNum, scene);
   model.scaling = new BABYLON.Vector3(0.45, 0.45, 0.45);
@@ -597,19 +658,13 @@ function initAllMiniPreviews() {
   initMiniPreview("mini6", 6);
 }
 
-/* INITIALIZE EVERYTHING */
-initAvatarPreview();
-initCustomizePreview();
-initAllMiniPreviews();
-
-/* REFRESH ALL PREVIEWS ON WINDOW RESIZE */
+/* REFRESH PREVIEWS ON RESIZE */
 window.addEventListener("resize", () => {
-  initAvatarPreview();
   initCustomizePreview();
   initAllMiniPreviews();
 });
 </script>
 
+
 </body>
 </html>
-
