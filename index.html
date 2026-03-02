@@ -1,671 +1,168 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Interactive3D</title>
-  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/appicon.ico">
-
-  <!-- Babylon.js -->
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-
-  <style>
-    body {
-      background: white;
-      font-family: Verdana, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-y: scroll;
-    }
-
-    #pageFrame {
-      width: 80vh;
-      min-height: 100vh;
-      margin: 0 auto;
-      background: white;
-      border-left: 1px solid #ccc;
-      border-right: 1px solid #ccc;
-    }
-
-    #header {
-      background: #5ab4ff;
-      padding: 12px;
-      border-bottom: 1px solid black;
-      display: flex;
-      justify-content: center;
-    }
-
-    #header img { height: 48px; }
-
-    #subnav {
-      background: white;
-      padding: 10px;
-      border-bottom: 1px solid black;
-      display: flex;
-      gap: 10px;
-    }
-
-    .navBtn {
-      background: #5ab4ff;
-      border: 1px solid black;
-      padding: 6px 14px;
-      cursor: pointer;
-      font-size: 14px;
-      color: white;
-      font-weight: bold;
-    }
-
-    .navBtn:hover { background: #3a8cd6; }
-
-    #content { padding: 20px; }
-
-    .box {
-      background: white;
-      border: 1px solid black;
-      padding: 10px;
-    }
-
-    .yellowBox {
-      background: #fff8c6;
-      border: 1px solid black;
-      padding: 10px;
-    }
-
-    .miniPreview {
-      width: 120px;
-      aspect-ratio: 1 / 1;
-      background: #5ab4ff;
-      border: 1px solid black;
-      position: relative;
-    }
-
-    .miniPreview canvas {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    #customizeCanvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
-    }
-
-    .charCell { text-align: center; cursor: pointer; }
-    .charLabel { margin-top: 6px; font-size: 14px; font-weight: bold; }
-
-    .placeBox {
-      background: white;
-      border: 1px solid black;
-      padding: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .playBtn {
-      background: #5ab4ff;
-      color: white;
-      border: 1px solid black;
-      padding: 5px 12px;
-      cursor: pointer;
-    }
-
-    .playBtn:hover { background: #3a8cd6; }
-  </style>
-</head>
-<body>
-
-<div id="pageFrame">
-
-  <div id="header">
-    <img src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/banner.png">
-  </div>
-
-  <div id="subnav">
-    <button class="navBtn" onclick="showHome()">Home</button>
-    <button class="navBtn" onclick="showPlaces()">Places</button>
-    <button class="navBtn" onclick="showCustomize()">Customize</button>
-  </div>
-
-  <div id="content">
-
-    <!-- HOME -->
-    <div id="homeSection">
-
-      <div style="display:flex; width:100%;">
-
-        <div class="yellowBox" style="flex:1; border-right:none;">
-          <h3 style="margin-top:0;">welcome to Interactive3D</h3>
-          <p>Click on a place to get started.</p>
-        </div>
-
-        <div class="yellowBox" style="width:250px;">
-          <label>Username:</label><br>
-          <input id="loginUser" type="text" style="width:95%;"><br><br>
-
-          <label>Password:</label><br>
-          <input id="loginPass" type="password" style="width:95%;"><br><br>
-
-          <button class="navBtn" style="width:100%;" onclick="doLogin()">Log In</button>
-          <button class="navBtn" style="width:100%; margin-top:5px;" onclick="doSignup()">Sign Up</button>
-
-          <p id="loggedInLabel" style="margin-top:10px; font-weight:bold;">logged in as: Guest</p>
-        </div>
-
-      </div>
-
-      <div style="display:flex; width:100%; margin-top:20px;">
-
-        <div class="box" style="flex:1; border-right:none;">
-          <h3 style="margin-top:0;">Cool Place</h3>
-
-          <div style="width:100%; aspect-ratio:4/3; border:1px solid black;">
-            <img id="coolPlaceImg"
-                 src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/defaultplace.png"
-                 style="width:100%; height:100%; object-fit:cover;">
-          </div>
-
-          <p id="coolPlaceName" style="font-weight:bold; margin-top:8px;">Loading...</p>
-        </div>
-
-        <div class="box" style="width:250px;">
-          <h3 style="margin-top:0;">newest players</h3>
-          <ul id="newestPlayers" style="padding-left:18px;">
-            <li>Loading...</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <div class="box" style="margin-top:20px; width:100%;">
-        <h3 style="margin-top:0;">Recently Visited Places</h3>
-        <div id="recentPlaces" style="display:flex; gap:10px;"></div>
-        <a href="#" style="display:block; margin-top:10px;">Browse All Places</a>
-      </div>
-
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Interactive3D</title><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><style>
+body{margin:0;font-family:Verdana,sans-serif;background:#ffffff}
+#headerBanner{width:100%;height:auto;object-fit:contain;display:block}
+#appWrapper{width:950px;margin:0 auto 20px auto}
+#navBar{background:rgb(0,0,255);color:#fff;padding:12px 20px;font-size:24px;display:flex;justify-content:space-between;align-items:center}
+#navLinks a{color:#fff;text-decoration:none;margin-right:20px}
+#navLinks a.active{text-decoration:underline}
+#navAuth a{color:#fff;text-decoration:none;margin-left:20px;cursor:pointer}
+.section{display:none;margin-top:20px}
+.box{background:#fff;border:2px solid #a7a7a7;padding:12px;font-size:24px;margin-bottom:20px}
+.boxTitle{font-weight:bold;margin-bottom:8px}
+#homeColumns{display:grid;grid-template-columns:350px 560px;grid-template-rows:auto auto;gap:20px}
+#newestPeopleBox{grid-row:span 2}
+.thumbImg{width:300px;height:225px;object-fit:cover;border:2px solid #999}
+.thumbFallback{width:300px;height:225px;background:#ccc;border:2px solid #999;display:flex;align-items:center;justify-content:center;font-size:96px;color:#555}
+.usernameLink{color:rgb(0,0,255);cursor:pointer}
+.placeRow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:2px solid #d0d0c5;font-size:24px}
+.placeRowLeft{display:flex;flex-direction:column}
+.placeRowTitle{font-weight:bold}
+.placeRowMeta{font-size:22px;color:#555}
+.btnSmall{background:rgb(0,0,255);color:#fff;border:2px solid #1f1fb0;padding:6px 16px;font-size:22px;cursor:pointer}
+#placeTopBar{margin-bottom:12px}
+#backButton{background:#e0e0d5;border:2px solid #a7a7a7;padding:4px 16px;font-size:22px;cursor:pointer}
+#placeLayout{display:grid;grid-template-columns:200px 1fr;gap:20px}
+#placeLayout>div:nth-child(2){margin-top:260px}
+#visitButton{background:rgb(0,0,255);color:#fff;border:2px solid #1f1fb0;padding:8px 20px;font-size:24px;cursor:pointer}
+.personEntry{padding:6px 0;border-bottom:2px solid #d0d0c5;font-size:24px}
+#footer{font-size:20px;color:#777;margin-top:20px;text-align:center}
+.authOverlay{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+.authInner{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.authLogo{width:45vw;max-width:420px;object-fit:contain;margin-bottom:20px}
+.authBox{width:360px;max-width:90vw;border:2px solid #a7a7a7;padding:20px;background:#fff;text-align:left}
+.authTitle{font-size:32px;font-weight:bold;margin-bottom:12px}
+.authBox input[type=text],.authBox input[type=password]{width:100%;padding:6px;font-size:22px;margin-bottom:8px;border:2px solid #a7a7a7}
+.authBox button{width:100%;margin-top:4px}
+.authSwitch{margin-top:10px;font-size:20px}
+.authSwitch a{color:rgb(0,0,255);cursor:pointer;text-decoration:none}
+#welcomeUserText{font-weight:bold;margin-bottom:6px}
+#loginStatus{font-size:20px;color:#333;margin-top:6px}
+</style></head><body>
+<img id="headerBanner" src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/banner.png?raw=1">
+<div id="appWrapper" style="display:none">
+  <div id="navBar">
+    <div id="navLinks">
+      <a href="javascript:void(0)" id="navHome" class="active">Home</a> |
+      <a href="javascript:void(0)" id="navBrowse">Browse</a> |
+      <a href="javascript:void(0)" id="navPeople">People</a>
     </div>
-    <!-- END HOME -->
-
-    <!-- PLACES -->
-    <div id="placesSection" style="display:none;">
-      <h3>Available Places</h3>
-      <div id="list">Loading…</div>
+    <div id="navAuth">
+      <span id="navGreeting"></span>
+      <a id="navLoginLink">Log In</a>
+      <a id="navLogoutLink" style="display:none;">Log Out</a>
     </div>
-
-    <!-- CUSTOMIZE -->
-    <div id="customizeSection" style="display:none;">
-      <h3>Customize Character</h3>
-
-      <div style="display:flex; gap:20px; align-items:flex-start;">
-
-        <div id="customizeAvatar" style="width:280px; height:320px; background:#5ab4ff; border:1px solid black; position:relative;">
-          <canvas id="customizeCanvas"></canvas>
+  </div>
+  <div id="homeSection" class="section">
+    <div id="homeColumns">
+      <div id="welcomeBox" class="box">
+        <div class="boxTitle">Welcome</div>
+        <div id="welcomeUserText">Hi, nobody!</div>
+        <div>
+          <button class="btnSmall" id="homeLoginBtn">Log In</button>
+          <button class="btnSmall" id="homeSignupBtn" style="margin-left:6px;">Sign Up</button>
         </div>
-
-        <div style="flex:1;">
-          <h4>Select Character</h4>
-
-          <div style="background:white; border:1px solid black; padding:12px; display:inline-block;">
-            <div id="charGrid" style="display:grid; grid-template-columns:repeat(3,120px); gap:15px;">
-
-              <div class="charCell" onclick="selectFigure(1)">
-                <div class="miniPreview"><canvas id="mini1"></canvas></div>
-                <div class="charLabel">Figure 1</div>
-              </div>
-
-              <div class="charCell" onclick="selectFigure(2)">
-                <div class="miniPreview"><canvas id="mini2"></canvas></div>
-                <div class="charLabel">Figure 2</div>
-              </div>
-
-              <div class="charCell" onclick="selectFigure(3)">
-                <div class="miniPreview"><canvas id="mini3"></canvas></div>
-                <div class="charLabel">Figure 3</div>
-              </div>
-
-              <div class="charCell" onclick="selectFigure(4)">
-                <div class="miniPreview"><canvas id="mini4"></canvas></div>
-                <div class="charLabel">Figure 4</div>
-              </div>
-
-              <div class="charCell" onclick="selectFigure(5)">
-                <div class="miniPreview"><canvas id="mini5"></canvas></div>
-                <div class="charLabel">Figure 5</div>
-              </div>
-
-              <div class="charCell" onclick="selectFigure(6)">
-                <div class="miniPreview"><canvas id="mini6"></canvas></div>
-                <div class="charLabel">Figure 6</div>
-              </div>
-
-            </div>
+        <div id="loginStatus"></div>
+      </div>
+      <div id="newestPeopleBox" class="box">
+        <div class="boxTitle">Newest People</div>
+        <div id="newestPeopleList">Loading people...</div>
+      </div>
+      <div id="coolPlaceBox" class="box">
+        <div class="boxTitle">Cool Place</div>
+        <div id="coolPlaceThumb"></div>
+        <div id="coolPlaceName" style="font-weight:bold;"></div>
+        <div id="coolPlaceMeta" style="font-size:22px;color:#555;"></div>
+      </div>
+    </div>
+  </div>
+  <div id="browseSection" class="section">
+    <div class="box">
+      <div class="boxTitle">Places</div>
+      <div id="browsePlacesList">Loading places...</div>
+    </div>
+  </div>
+  <div id="peopleSection" class="section">
+    <div class="box">
+      <div class="boxTitle">People</div>
+      <div id="peopleList">Loading people...</div>
+    </div>
+  </div>
+  <div id="placeSection" class="section">
+    <div id="placeTopBar"><button id="backButton">&lt; Back</button></div>
+    <div class="box">
+      <div id="placeLayout">
+        <div>
+          <div id="placeThumbContainer"></div>
+          <div id="placeTitle" style="font-weight:bold;font-size:28px;">Game</div>
+          <div id="placeOwner" style="font-size:24px;margin-top:4px;">Made By: @Yeah</div>
+          <button id="visitButton">Visit Solo</button>
+        </div>
+        <div>
+          <div id="placeDate" style="font-size:24px;margin-bottom:12px;">Date Created: March 2026</div>
+          <div class="box">
+            <div class="boxTitle">Description Here</div>
+            <div id="placeDesc">The Quick Brown Fox Jumps Over The Lazy Dog.</div>
           </div>
         </div>
-
       </div>
     </div>
-
-  </div> <!-- end content -->
-
-</div> <!-- end pageFrame -->
-
-<!-- LOADING OVERLAY -->
-<div id="loadingOverlay" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  z-index:9999;
-">
-  <div style="
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    background:#fff8c6;
-    border:1px solid black;
-    padding:20px 30px;
-    font-size:15px;
-    color:black;
-    min-width:260px;
-    text-align:center;
-  ">
-    Requesting Place, Please Wait...
+  </div>
+  <div id="footer">Credit goes to Interactive3D, all assets, names, logos and other related content are all trademarks of Interactive3D.</div>
+</div>
+<div id="loginOverlay" class="authOverlay">
+  <div class="authInner">
+    <img class="authLogo" src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/interactive3dlogo.png?raw=1">
+    <div class="authBox">
+      <div class="authTitle">Log In</div>
+      <input id="loginUser" type="text" placeholder="Username">
+      <input id="loginPass" type="password" placeholder="Password">
+      <button class="btnSmall" id="btnLogin">Log In</button>
+      <div class="authSwitch">Don't Have An Account? <a id="goSignup">Sign Up</a></div>
+    </div>
   </div>
 </div>
-
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getDatabase, ref, set, get, child 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAMV92OcCFQh-9FSVk_me11dVR-JFNvCQQ",
-    authDomain: "interactive3dservers.firebaseapp.com",
-    databaseURL: "https://interactive3dservers-default-rtdb.firebaseio.com",
-    projectId: "interactive3dservers",
-    storageBucket: "interactive3dservers.firebasestorage.app",
-    messagingSenderId: "822638519297",
-    appId: "1:822638519297:web:8deafc5a1b54ad600e4c00"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  window.db = db;
-  window.dbRef = ref;
-  window.dbChild = child;
-  window.dbGet = get;
-  window.dbSet = set;
-</script>
-
-<!-- Main Script -->
+<div id="signupOverlay" class="authOverlay">
+  <div class="authInner">
+    <img class="authLogo" src="https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/Logos/interactive3dlogo.png?raw=1">
+    <div class="authBox">
+      <div class="authTitle">Sign Up</div>
+      <input id="signupUser" type="text" placeholder="Username">
+      <input id="signupPass" type="password" placeholder="Password">
+      <button class="btnSmall" id="btnSignup">Sign Up</button>
+      <div class="authSwitch">Already Have An Account? <a id="goLogin">Log In</a></div>
+    </div>
+  </div>
+</div>
 <script>
-/* SECTION SWITCHING */
-function showHome() {
-  homeSection.style.display = "block";
-  placesSection.style.display = "none";
-  customizeSection.style.display = "none";
-  initAllMiniPreviews();
-}
 
-function showPlaces() {
-  homeSection.style.display = "none";
-  placesSection.style.display = "block";
-  customizeSection.style.display = "none";
-  initAllMiniPreviews();
-}
 
-function showCustomize() {
-  homeSection.style.display = "none";
-  placesSection.style.display = "none";
-  customizeSection.style.display = "block";
-  initAllMiniPreviews();
-}
-
-/* PASSWORD ENCODING */
-function asciiToAlpha(num) {
-  let result = "";
-  while (num > 0) {
-    num--;
-    const remainder = num % 26;
-    result = String.fromCharCode(97 + remainder) + result;
-    num = Math.floor(num / 26);
-  }
-  return result;
-}
-
-function encodePassword(str) {
-  let out = [];
-  for (let ch of str) {
-    const ascii = ch.charCodeAt(0);
-    const alpha = asciiToAlpha(ascii);
-    out.push(alpha);
-  }
-  return out.join("0");
-}
-
-/* SIGN UP (using login fields) */
-async function doSignup() {
-  const username = document.getElementById("loginUser").value.trim();
-  const pass = document.getElementById("loginPass").value;
-
-  if (!username || !pass) {
-    alert("Please enter a username and password.");
-    return;
-  }
-
-  const encoded = encodePassword(pass);
-
-  const userRef = dbRef(db, "users/" + username);
-  const snap = await dbGet(userRef);
-
-  if (snap.exists()) {
-    alert("Username already taken.");
-    return;
-  }
-
-  try {
-    await dbSet(userRef, {
-      password: encoded,
-      createdAt: Date.now()
-    });
-
-    localStorage.setItem("loggedInUser", username);
-    document.getElementById("loggedInLabel").innerText = "logged in as: " + username;
-
-    alert("Account created!");
-
-  } catch (err) {
-    alert("Error: " + err.message);
-  }
-}
-
-/* LOGIN */
-async function doLogin() {
-  const username = document.getElementById("loginUser").value.trim();
-  const pass = document.getElementById("loginPass").value;
-
-  const encoded = encodePassword(pass);
-
-  const userRef = dbRef(db, "users/" + username);
-  const snap = await dbGet(userRef);
-
-  if (!snap.exists()) {
-    alert("Invalid username.");
-    return;
-  }
-
-  const data = snap.val();
-
-  if (data.password !== encoded) {
-    alert("Incorrect password.");
-    return;
-  }
-
-  localStorage.setItem("loggedInUser", username);
-  document.getElementById("loggedInLabel").innerText = "logged in as: " + username;
-
-  alert("Logged in!");
-}
-
-/* AUTO LOGIN */
-window.onload = () => {
-  const u = localStorage.getItem("loggedInUser");
-  if (u) {
-    document.getElementById("loggedInLabel").innerText = "logged in as: " + u;
-  }
-};
-
-/* PLACES */
-const apiURL = "https://api.github.com/repos/yeahbuildsstuff/placeservice/contents/";
-function getPlayerCount() { return 0; }
-
-async function loadFiles() {
-  const list = document.getElementById("list");
-
-  try {
-    const response = await fetch(apiURL);
-    const files = await response.json();
-    list.innerHTML = "";
-
-    const gameSet = new Set();
-
-    files.forEach(file => {
-      if (file.name.endsWith(".html")) {
-        let cleanName = file.name.replace(".html", "");
-        cleanName = cleanName.replace(/\(char\d+\)/, "");
-        gameSet.add(cleanName);
-      }
-    });
-
-    gameSet.forEach(baseName => {
-      const players = getPlayerCount();
-
-      const div = document.createElement("div");
-      div.className = "placeBox";
-
-      div.innerHTML = `
-        <span class="placeName">${baseName}</span>
-        <div style="display:flex; align-items:center;">
-          <span class="playerCount">${players} players online</span>
-          <button class="playBtn" onclick="play('${baseName}')">Play</button>
-        </div>
-      `;
-
-      list.appendChild(div);
-    });
-
-  } catch (err) {
-    list.innerHTML = "Error loading file list.";
-  }
-}
-
-function play(baseName) {
-  document.getElementById("loadingOverlay").style.display = "block";
-
-  const charFile = `(char${selectedFigure})${baseName}.html`;
-
-  setTimeout(() => {
-    window.location.href = `https://yeahbuildsstuff.github.io/placeservice/${charFile}`;
-  }, 2000);
-}
-
-loadFiles();
-
-/* AVATAR GLOBALS — REQUIRED */
-let selectedFigure = 1;
-
-const figureColors = {
-  1: { head:[245,205,48], torso:[128,187,219], legs:[164,189,71] },
-  2: { head:[245,205,48], torso:[220,93,237], legs:[164,189,71] },
-
-  /* UPDATED FIGURE 3 */
-  3: { head:[245,205,48], torso:[165,165,165], legs:[164,189,71] },
-
-  4: { head:[245,205,48], torso:[213,110,139], legs:[164,189,71] },
-  5: { head:[245,205,48], torso:[110,134,213], legs:[164,189,71] },
-  6: { head:[245,205,48], torso:[255,150,59], legs:[164,189,71] }
-};
-
-function selectFigure(num) {
-  selectedFigure = num;
-  initCustomizePreview();
-  initAllMiniPreviews();
-}
-
-/* AVATAR BUILDER */
-function buildAvatar(scene, model) {
-  const f = figureColors[selectedFigure];
-
-  const headColor = new BABYLON.Color3(f.head[0]/255, f.head[1]/255, f.head[2]/255);
-  const torsoColor = new BABYLON.Color3(f.torso[0]/255, f.torso[1]/255, f.torso[2]/255);
-  const legColor   = new BABYLON.Color3(f.legs[0]/255, f.legs[1]/255, f.legs[2]/255);
-
-  let id = 0;
-  function part(name, w, h, d, y, x, color) {
-    const p = BABYLON.MeshBuilder.CreateBox(name + "_" + (id++), { width:w, height:h, depth:d }, scene);
-    p.position.y = y;
-    p.position.x = x;
-
-    const mat = new BABYLON.StandardMaterial(name + "_mat", scene);
-    mat.diffuseColor = color;
-    mat.specularColor = new BABYLON.Color3(0,0,0);
-    p.material = mat;
-
-    p.parent = model;
-    return p;
-  }
-
-  part("torso", 2, 2, 1, 2, 0, torsoColor);
-  part("leftArm", 1, 2, 1, 2, -1.5, headColor);
-  part("rightArm", 1, 2, 1, 2, 1.5, headColor);
-  part("leftLeg", 1, 2, 1, 0, -0.5, legColor);
-  part("rightLeg", 1, 2, 1, 0, 0.5, legColor);
-
-  BABYLON.SceneLoader.ImportMesh(
-    "",
-    "https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/",
-    "head.obj",
-    scene,
-    function(meshes) {
-      const headInner = meshes[0];
-      headInner.scaling = new BABYLON.Vector3(1,1,1);
-      headInner.rotation = new BABYLON.Vector3(0, Math.PI, 0);
-      headInner.position = new BABYLON.Vector3(0, 3.5, 0);
-      headInner.parent = model;
-
-      const innerMat = new BABYLON.StandardMaterial("innerMat", scene);
-      innerMat.diffuseColor = headColor;
-      innerMat.specularColor = new BABYLON.Color3(0,0,0);
-      headInner.material = innerMat;
-
-      const headOuter = headInner.clone("headOuter");
-      headOuter.parent = model;
-      headOuter.scaling = new BABYLON.Vector3(1.002,1.002,1.002);
-
-      const faceMat = new BABYLON.StandardMaterial("faceMat", scene);
-      const faceTex = new BABYLON.Texture(
-        "https://raw.githubusercontent.com/yeahbuildsstuff/GameAssetServiceRepo/main/defaultface.png",
-        scene
-      );
-      faceTex.hasAlpha = true;
-      faceMat.diffuseTexture = faceTex;
-      faceMat.opacityTexture = faceTex;
-      faceMat.emissiveColor = new BABYLON.Color3(1,1,1);
-      faceMat.specularColor = new BABYLON.Color3(0,0,0);
-      faceMat.backFaceCulling = false;
-
-      headOuter.material = faceMat;
-    }
-  );
-}
-
-/* CUSTOMIZE PREVIEW */
-function initCustomizePreview() {
-  const canvas = document.getElementById("customizeCanvas");
-  if (!canvas) return;
-
-  const engine = new BABYLON.Engine(canvas, true);
-  const scene = new BABYLON.Scene(engine);
-
-  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-
-  const camera = new BABYLON.ArcRotateCamera(
-    "cam2",
-    Math.PI / 2 + Math.PI * 0.055,
-    Math.PI / 2.2,
-    6,
-    BABYLON.Vector3.Zero(),
-    scene
-  );
-  camera.attachControl(canvas, false);
-
-  new BABYLON.DirectionalLight("dirLight2", new BABYLON.Vector3(-1, -1, -1), scene).intensity = 0.55;
-  new BABYLON.HemisphericLight("hemi2", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.9;
-
-  const model = new BABYLON.TransformNode("model2", scene);
-  model.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
-  model.position.y = -1.2;
-
-  buildAvatar(scene, model);
-
-  engine.runRenderLoop(() => scene.render());
-  window.addEventListener("resize", () => engine.resize());
-}
-
-/* MINI PREVIEWS */
-function initMiniPreview(canvasId, figureNum) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-
-  const engine = new BABYLON.Engine(canvas, true);
-  const scene = new BABYLON.Scene(engine);
-
-  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
-
-  const camera = new BABYLON.ArcRotateCamera(
-    "camMini" + figureNum,
-    Math.PI / 2 + Math.PI * 0.055,
-    Math.PI / 2.2,
-    6,
-    BABYLON.Vector3.Zero(),
-    scene
-  );
-  camera.attachControl(canvas, false);
-
-  new BABYLON.DirectionalLight(
-    "dirMini" + figureNum,
-    new BABYLON.Vector3(-1, -1, -1),
-    scene
-  ).intensity = 0.55;
-
-  new BABYLON.HemisphericLight(
-    "hemiMini" + figureNum,
-    new BABYLON.Vector3(0, 1, 0),
-    scene
-  ).intensity = 0.9;
-
-  const model = new BABYLON.TransformNode("miniModel" + figureNum, scene);
-  model.scaling = new BABYLON.Vector3(0.45, 0.45, 0.45);
-  model.position.y = -1.2;
-
-  const old = selectedFigure;
-  selectedFigure = figureNum;
-
-  buildAvatar(scene, model);
-
-  selectedFigure = old;
-
-  engine.runRenderLoop(() => scene.render());
-}
-
-function initAllMiniPreviews() {
-  initMiniPreview("mini1", 1);
-  initMiniPreview("mini2", 2);
-  initMiniPreview("mini3", 3);
-  initMiniPreview("mini4", 4);
-  initMiniPreview("mini5", 5);
-  initMiniPreview("mini6", 6);
-}
-
-/* REFRESH PREVIEWS ON RESIZE */
-window.addEventListener("resize", () => {
-  initCustomizePreview();
-  initAllMiniPreviews();
-});
+const firebaseConfig={apiKey:"AIzaSyAMV92OcCFQh-9FSVk_me11dVR-JFNvCQQ",authDomain:"interactive3dservers.firebaseapp.com",databaseURL:"https://interactive3dservers-default-rtdb.firebaseio.com",projectId:"interactive3dservers",storageBucket:"interactive3dservers.firebasestorage.app",messagingSenderId:"822638519297",appId:"1:822638519297:web:8deafc5a1b54ad600e4c00"};firebase.initializeApp(firebaseConfig);const USERS_REF=firebase.database().ref("v2/users"),CLIENT_URL="https://yeahbuildsstuff.github.io/placeservice/GameClient.html",REPO_CONTENTS_URL="https://api.github.com/repos/yeahbuildsstuff/placeservice/contents/";function hashPassword(p){return btoa(p.split("").reverse().join(""))}
+const loginOverlay=document.getElementById("loginOverlay"),signupOverlay=document.getElementById("signupOverlay"),appWrapper=document.getElementById("appWrapper");function showLoginOverlay(){loginOverlay.style.display="block";signupOverlay.style.display="none"}function showSignupOverlay(){signupOverlay.style.display="block";loginOverlay.style.display="none"}function hideOverlays(){loginOverlay.style.display="none";signupOverlay.style.display="none"}
+document.getElementById("goSignup").onclick=showSignupOverlay;document.getElementById("goLogin").onclick=showLoginOverlay;document.getElementById("homeLoginBtn").onclick=showLoginOverlay;document.getElementById("homeSignupBtn").onclick=showSignupOverlay;document.getElementById("navLoginLink").onclick=showLoginOverlay;
+function updateLoginUI(){const u=localStorage.getItem("loggedInUser"),g=document.getElementById("navGreeting"),l=document.getElementById("navLogoutLink"),w=document.getElementById("welcomeUserText");if(u){g.textContent="Logged in as @"+u;l.style.display="inline";w.textContent="Hi, @"+u+"!"}else{g.textContent="";l.style.display="none";w.textContent="Hi, nobody!"}}
+document.getElementById("navLogoutLink").onclick=()=>{localStorage.removeItem("loggedInUser");appWrapper.style.display="none";showSignupOverlay();updateLoginUI()};
+document.getElementById("btnSignup").onclick=async()=>{const user=document.getElementById("signupUser").value.trim(),pass=document.getElementById("signupPass").value,status=document.getElementById("loginStatus");status.textContent="";if(!user||!pass){status.textContent="Missing username or password.";return}const existing=await USERS_REF.child(user).get();if(existing.exists()){status.textContent="That username is already taken.";return}const allSnap=await USERS_REF.get();let nextId=1;if(allSnap.exists()){const users=allSnap.val(),ids=Object.values(users).map(u=>u.id||0),maxId=ids.length?Math.max.apply(null,ids):0;nextId=maxId+1}
+await USERS_REF.child(user).set({id:nextId,password:hashPassword(pass),joined:Date.now()});localStorage.setItem("loggedInUser",user);hideOverlays();appWrapper.style.display="block";show("homeSection");updateLoginUI();await refreshPeopleLists()};
+document.getElementById("btnLogin").onclick=async()=>{const user=document.getElementById("loginUser").value.trim(),pass=document.getElementById("loginPass").value,status=document.getElementById("loginStatus");status.textContent="";if(!user||!pass){status.textContent="Missing username or password.";return}const snap=await USERS_REF.child(user).get();if(!snap.exists()){status.textContent="User not found.";return}const data=snap.val();if(data.password!==hashPassword(pass)){status.textContent="Incorrect password.";return}localStorage.setItem("loggedInUser",user);hideOverlays();appWrapper.style.display="block";show("homeSection");updateLoginUI()};
+const sections=["homeSection","browseSection","peopleSection","placeSection"];function show(id){sections.forEach(s=>{document.getElementById(s).style.display=(s===id)?"block":"none"});document.getElementById("navHome").classList.remove("active");document.getElementById("navBrowse").classList.remove("active");document.getElementById("navPeople").classList.remove("active");if(id==="homeSection")document.getElementById("navHome").classList.add("active");if(id==="browseSection")document.getElementById("navBrowse").classList.add("active");if(id==="peopleSection")document.getElementById("navPeople").classList.add("active")}
+document.getElementById("navHome").onclick=()=>show("homeSection");document.getElementById("navBrowse").onclick=()=>show("browseSection");document.getElementById("navPeople").onclick=()=>show("peopleSection");document.getElementById("backButton").onclick=()=>show("homeSection");
+document.addEventListener("click",e=>{if(e.target.classList.contains("usernameLink")){const u=e.target.dataset.user;show("peopleSection");setTimeout(()=>{const el=document.getElementById("user-"+u);if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},50)}});
+function stripExtension(f){return f.endsWith(".placeXML")?f.slice(0,-9):f}
+function parsePlaceDate(s){if(!s)return"Unknown";const p=s.split("."),m=parseInt(p[0],10),y=p[2],names=["","January","February","March","April","May","June","July","August","September","October","November","December"];return names[m]+" "+y}
+function isValidBase64(str){try{atob(str);return true}catch{return false}}
+function fallbackThumbHTML(){return'<div class="thumbFallback">?</div>'}
+async function imageHasTransparency(b64){return new Promise(res=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;const ctx=c.getContext("2d");ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,img.width,img.height).data;for(let i=3;i<data.length;i+=4){if(data[i]<255)return res(true)}res(false)};img.onerror=()=>res(true);img.src="data:image/png;base64,"+b64})}
+async function loadPlaceIcon(url){const t=await fetch(url).then(r=>r.text()),xml=new DOMParser().parseFromString(t,"text/xml"),iconNode=xml.querySelector("icon");if(!iconNode)return{base64:null,xml};const b=iconNode.textContent.trim();return{base64:b||null,xml}}
+function parsePlaceOwner(xml){const n=xml.querySelector("owner");return n?n.textContent.trim():"Unknown"}
+function parsePlaceDescription(xml){const n=xml.querySelector("desc");return n?n.textContent.trim():"No description provided."}
+function parsePlaceDateFromXML(xml){const n=xml.querySelector("datecreated");return n?parsePlaceDate(n.textContent.trim()):"Unknown"}
+async function loadPlacesFromRepo(){const res=await fetch(REPO_CONTENTS_URL),files=await res.json();return files.filter(f=>f.name.endsWith(".placeXML"))}
+async function getFileTimestamp(path){const res=await fetch("https://api.github.com/repos/yeahbuildsstuff/placeservice/commits?path="+encodeURIComponent(path)),commits=await res.json();if(!Array.isArray(commits)||!commits.length)return 0;return new Date(commits[0].commit.author.date).getTime()}
+async function getNewestPlace(){const files=await loadPlacesFromRepo();let newest=null;for(const f of files){const ts=await getFileTimestamp(f.path);if(!newest||ts>newest.ts)newest={...f,ts}}return newest}
+async function updateCoolPlaceBox(){const thumbDiv=document.getElementById("coolPlaceThumb"),nameDiv=document.getElementById("coolPlaceName"),metaDiv=document.getElementById("coolPlaceMeta"),box=document.getElementById("coolPlaceBox");try{const newest=await getNewestPlace();if(!newest){nameDiv.textContent="No places found.";thumbDiv.innerHTML=fallbackThumbHTML();metaDiv.textContent="";return}const displayName=stripExtension(newest.name),{base64,xml}=await loadPlaceIcon(newest.download_url);let thumbHTML;if(!base64||!isValidBase64(base64)||await imageHasTransparency(base64)){thumbHTML=fallbackThumbHTML()}else{thumbHTML='<img class="thumbImg" src="data:image/png;base64,'+base64+'">'}const owner=parsePlaceOwner(xml),dateStr=parsePlaceDateFromXML(xml);thumbDiv.innerHTML=thumbHTML;nameDiv.textContent=displayName;metaDiv.textContent="Made By: @"+owner+"  •  Date Created: "+dateStr;box.onclick=()=>openPlacePage(displayName,newest.download_url)}catch(e){nameDiv.textContent="Error loading Cool Place.";thumbDiv.innerHTML=fallbackThumbHTML();metaDiv.textContent=""}}
+async function populateBrowseList(){const container=document.getElementById("browsePlacesList");container.textContent="Loading places...";try{const files=await loadPlacesFromRepo();if(!files.length){container.textContent="No places found.";return}container.innerHTML="";for(const f of files){const displayName=stripExtension(f.name),row=document.createElement("div");row.className="placeRow";const left=document.createElement("div");left.className="placeRowLeft";const title=document.createElement("div");title.className="placeRowTitle";title.textContent=displayName;const meta=document.createElement("div");meta.className="placeRowMeta";meta.textContent="made by: (loading...)";left.appendChild(title);left.appendChild(meta);const btn=document.createElement("button");btn.className="btnSmall";btn.textContent="View";btn.onclick=()=>openPlacePage(displayName,f.download_url);row.appendChild(left);row.appendChild(btn);container.appendChild(row);(async()=>{try{const t=await fetch(f.download_url).then(r=>r.text()),xml=new DOMParser().parseFromString(t,"text/xml"),owner=parsePlaceOwner(xml),dateStr=parsePlaceDateFromXML(xml);meta.textContent="made by: @"+owner+"  •  Date Created: "+dateStr}catch{meta.textContent="made by: Unknown"}})()}}catch(e){container.textContent="Error loading places."}}
+async function openPlacePage(name,url){try{const t=await fetch(url).then(r=>r.text()),xml=new DOMParser().parseFromString(t,"text/xml"),owner=parsePlaceOwner(xml),desc=parsePlaceDescription(xml),dateStr=parsePlaceDateFromXML(xml),{base64}=await loadPlaceIcon(url);let thumbHTML;if(!base64||!isValidBase64(base64)||await imageHasTransparency(base64)){thumbHTML=fallbackThumbHTML()}else{thumbHTML='<img class="thumbImg" src="data:image/png;base64,'+base64+'">'}document.getElementById("placeTitle").textContent=name;document.getElementById("placeOwner").innerHTML='Made By: <span class="usernameLink" data-user="'+owner+'">@'+owner+"</span>";document.getElementById("placeDate").textContent="Date Created: "+dateStr;document.getElementById("placeDesc").textContent=desc;document.getElementById("placeThumbContainer").innerHTML=thumbHTML;document.getElementById("visitButton").onclick=()=>{const user=localStorage.getItem("loggedInUser")||"nobody",encodedUser=encodeURIComponent(user);window.location.href=CLIENT_URL+"?place="+url+"&user="+encodedUser;};show("placeSection")}catch(e){alert("Error loading place.")}}
+async function refreshPeopleLists(){const peopleList=document.getElementById("peopleList"),newestList=document.getElementById("newestPeopleList");peopleList.textContent="Loading people...";newestList.textContent="Loading people...";const snap=await USERS_REF.get();if(!snap.exists()){peopleList.textContent="No users yet.";newestList.textContent="No users yet.";return}const users=snap.val(),arr=Object.keys(users).map(username=>({username,id:users[username].id||0,joined:users[username].joined||0}));arr.sort((a,b)=>a.id-b.id);peopleList.innerHTML="";arr.forEach(u=>{const div=document.createElement("div");div.className="personEntry";div.id="user-"+u.username;const d=new Date(u.joined||0),dateStr=isNaN(d.getTime())?"Unknown":(d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();div.innerHTML=u.id+'&nbsp;&nbsp;<span class="usernameLink" data-user="'+u.username+'">@'+u.username+"</span>&nbsp;&nbsp;Date Joined: "+dateStr;peopleList.appendChild(div)});const newest=[...arr].sort((a,b)=>b.joined-a.joined).slice(0,4);newestList.innerHTML="";newest.forEach(u=>{const div=document.createElement("div");div.innerHTML='<span class="usernameLink" data-user="'+u.username+'">@'+u.username+"</span>";newestList.appendChild(div)});const browseAll=document.createElement("div");browseAll.style.marginTop="8px";browseAll.innerHTML='<a href="javascript:void(0)" id="browseAllPeopleLink">Browse All People</a>';newestList.appendChild(browseAll);document.getElementById("browseAllPeopleLink").onclick=()=>show("peopleSection")}
+(async function init(){const u=localStorage.getItem("loggedInUser");if(u){appWrapper.style.display="block";hideOverlays();show("homeSection")}else{appWrapper.style.display="none";showSignupOverlay()}updateLoginUI();updateCoolPlaceBox();populateBrowseList();await refreshPeopleLists()})();
 </script>
-
-
-</body>
-</html>
-
+</body></html>
